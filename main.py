@@ -1,4 +1,5 @@
-import turtle 
+import turtle
+import time
 
 # game board setup
 
@@ -142,7 +143,9 @@ thescreen.onkey(go_right, "Right")
 thescreen.onkey(so_done,"x")
 
 turtle.done = False
-head.behave = "right"
+head.behave = "stationary"
+
+thescreen.tracer(0)
 
 # The Main Game Loop
 while (not turtle.done):
@@ -166,6 +169,8 @@ while (not turtle.done):
     score = score + 1
     print(score)
     move_food()
+  # time.sleep(0.02)
+  thescreen.update()
 
 print("Game over!")
 print("Done!")
