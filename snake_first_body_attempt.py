@@ -1,19 +1,21 @@
-import turtle 
+import turtle
+import time
+import random
 
 # game board setup
 
-def drawBorders():
+def drawBorders(size):
   turtle.speed(0)
   turtle.penup()
-  turtle.goto(-200,200)
+  turtle.goto(-size/2,size/2)
   turtle.pendown()
-  turtle.forward(400)
+  turtle.forward(size)
   turtle.right(90)  
-  turtle.forward(400)
+  turtle.forward(size)
   turtle.right(90)  
-  turtle.forward(400)
+  turtle.forward(size)
   turtle.right(90)
-  turtle.forward(400)
+  turtle.forward(size)
   turtle.penup()
   turtle.goto(0,0)
   turtle.pendown()
@@ -45,33 +47,45 @@ def go_down():
 # sprite behaviors
 #
 
+
+def move_snake():
+  if (head.behave == "up"):
+    head.setheading(90)
+  elif (head.behave == "down"):
+    head.setheading(270)
+  elif (head.behave == "left"):
+    head.setheading(180)
+  elif (head.behave == "right"):
+    head.setheading(0)
+  if (head.behave != "stationary"):
+    head.forward(20)
+  for i in range(len(snake_body)-1,0,-1):
+    newx = snake_body[i-1].xcor()
+    newy = snake_body[i-1].ycor()
+    snake_body[i].goto(int(newx), int(newy))
+
+    
+
+def grow_snake():
+  snake_body.append(snake_body[len(snake_body)-1].clone())
+  snake_body[len(snake_body)-1].color("lightgreen")
+  print(snake_body)
+  for turt in snake_body:
+    print(turt.pos())
+  
+
+
 # food behavior
 
-def move_food():
+def move_food(size):
   # hide food
   food.hideturtle()
   # change location of food
-  food.goto(50,-100)
+  # food.goto(50,-100)
+  midsize = size * .8
+  food.goto(random.randint(-midsize/2,midsize/2), random.randint(-midsize/2,midsize/2))
   # show the food 
   food.showturtle()
-
-# snake head behaviors
-
-def step_right():
-  head.setheading(0)
-  head.forward(5)
-
-def step_up():
-  head.setheading(90)
-  head.forward(5)
-
-def step_down():
-  head.setheading(270)
-  head.forward(5)
-
-def step_left():
-  head.setheading(180)
-  head.forward(5)
 
 # set flag to end loop
 
@@ -80,15 +94,15 @@ def so_done():
   print("stopping")
 
 # Check whether the sprite has hit one of the boundaries
-def collision_with_wall():
+def collision_with_wall(size):
   collided = False
-  if head.xcor() >= 200:
+  if head.xcor() >= size/2:
     collided = True
-  if head.xcor() <= -200:
+  if head.xcor() <= -size/2:
     collided = True
-  if head.ycor() >= 200:
+  if head.ycor() >= size/2:
     collided = True
-  if head.ycor() <= -200:
+  if head.ycor() <= -size/2:
     collided = True
   return collided
 
@@ -110,6 +124,8 @@ def snake_ate_food():
 #
 #
 
+random.seed()
+
 # set up sprites
 
 head = turtle.Turtle()
@@ -125,13 +141,20 @@ food.penup()
 food.shape("circle")
 food.goto(50,50)
 
+snake_body = []
+
+snake_body.append(head)
+
+
 # initialize the score
 score = 0
+
+area_size = 600
 
 # get a reference to the screen
 thescreen = turtle.getscreen()
 thescreen.bgcolor("honeydew")
-drawBorders()
+drawBorders(area_size)
 
 # keyboard bidings setup
 thescreen.listen()
@@ -142,30 +165,26 @@ thescreen.onkey(go_right, "Right")
 thescreen.onkey(so_done,"x")
 
 turtle.done = False
-head.behave = "right"
+head.behave = "stationary"
+
+thescreen.tracer(0)
 
 # The Main Game Loop
 while (not turtle.done):
-  if (head.behave == "up"):
-    step_up()
 
-  if (head.behave == "down"):
-    step_down()
-
-  if (head.behave == "left"):
-    step_left()
-
-  if (head.behave == "right"):
-    step_right()
+  move_snake()
   
-  if collision_with_wall():
+  if collision_with_wall(area_size):
     turtle.done = True
     print("You hit the wall!")
 
   if snake_ate_food():
     score = score + 1
     print(score)
-    move_food()
+    move_food(area_size)
+    grow_snake()
+  time.sleep(0.1)
+  thescreen.update()
 
 print("Game over!")
 print("Done!")
