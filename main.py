@@ -1,4 +1,6 @@
-import turtle 
+import turtle
+import random
+import time
 
 # game board setup
 
@@ -24,22 +26,22 @@ def drawBorders():
 def go_left():
   if (head.behave != "right"):
     head.behave = "left"
-    print("going left")
+    #print("going left")
 
 def go_right():
   if (head.behave != "left"):
     head.behave = "right"
-    print("going right")
+    #print("going right")
 
 def go_up():
   if (head.behave != "down"):
     head.behave = "up"
-    print("going up")
+    #print("going up")
 
 def go_down():
   if (head.behave != "up"):
     head.behave = "down"
-    print("going down")
+    #print("going down")
 
 #
 # sprite behaviors
@@ -51,7 +53,9 @@ def move_food():
   # hide food
   food.hideturtle()
   # change location of food
-  food.goto(50,-100)
+  randx = random.randint(-180,180)
+  randy = random.randint(-180,180)
+  food.goto(randx,randy)
   # show the food 
   food.showturtle()
 
@@ -59,19 +63,19 @@ def move_food():
 
 def step_right():
   head.setheading(0)
-  head.forward(5)
+  head.forward(20)
 
 def step_up():
   head.setheading(90)
-  head.forward(5)
+  head.forward(20)
 
 def step_down():
   head.setheading(270)
-  head.forward(5)
+  head.forward(20)
 
 def step_left():
   head.setheading(180)
-  head.forward(5)
+  head.forward(20)
 
 # set flag to end loop
 
@@ -103,6 +107,19 @@ def snake_ate_food():
   if (head.distance(food)<15):
     ate=True
   return ate
+
+def grow_tail():
+  new_segment = head.clone()
+  new_segment.color("lightgreen")
+  tail.insert(0,new_segment)
+
+def move_tail():
+  for i in range(len(tail)-1,-1,-1):
+    if (i==0):
+      tail[i].goto(head.xcor(),head.ycor())
+    else:
+      tail[i].goto(tail[i-1].xcor(),tail[i-1].ycor())
+
 
 #
 #
@@ -142,10 +159,23 @@ thescreen.onkey(go_right, "Right")
 thescreen.onkey(so_done,"x")
 
 turtle.done = False
-head.behave = "right"
+head.behave = "stopped"
+
+thescreen.tracer(0)
+
+tail = []
 
 # The Main Game Loop
 while (not turtle.done):
+
+  if snake_ate_food():
+    score = score + 1
+    #print(score)
+    move_food()
+    grow_tail()
+  else:
+    move_tail()
+
   if (head.behave == "up"):
     step_up()
 
@@ -162,10 +192,9 @@ while (not turtle.done):
     turtle.done = True
     print("You hit the wall!")
 
-  if snake_ate_food():
-    score = score + 1
-    print(score)
-    move_food()
+  
+  time.sleep(0.1)
+  thescreen.update()
 
 print("Game over!")
 print("Done!")
